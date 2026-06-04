@@ -37,7 +37,6 @@
             transition: transform 0.5s, opacity 0.5s;
         }
 
-        /* Solapa del sobre */
         .sobre::before {
             content: "";
             position: absolute;
@@ -113,7 +112,6 @@
             text-align: center;
         }
 
-        /* Contenedor de la foto de Spiderman */
         .spiderman-img-container {
             text-align: center;
             margin: 15px 0;
@@ -169,19 +167,31 @@
         </div>
     </div>
 
-    <!-- REPRODUCTOR DE AUDIO LOCAL INTEGRADO -->
-    <audio id="musicaFondo" loop>
-        <source src="musica.mp3" type="audio/mp3">
-    </audio>
+    <!-- EL ELEMENTO AUDIO SE CONSERVA CON ATRIBUTOS REFORZADOS -->
+    <audio id="musicaFondo" src="musica.mp3" loop crossorigin="anonymous"></audio>
 
     <script>
+        let audioContextInstancia;
+
         function abrirSobre() {
             const sobre = document.getElementById('miSobre');
-            const musica = document.getElementById('musicaFondo');
+            const elementoAudio = document.getElementById('musicaFondo');
             
-            // Forzar la reproducción inmediata vinculada al evento físico de tocar el corazón
-            musica.play().catch(err => {
-                console.log("El navegador bloqueó la reproducción automática inicial: ", err);
+            // CONTEXTO DE AUDIO INTERACTIVO: Se genera estrictamente al dar click
+            if (!audioContextInstancia) {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                audioContextInstancia = new AudioContextClass();
+                const fuenteNode = audioContextInstancia.createMediaElementSource(elementoAudio);
+                fuenteNode.connect(audioContextInstancia.destination);
+            }
+            
+            // Forzar activación del canal de sonido
+            if (audioContextInstancia.state === 'suspended') {
+                audioContextInstancia.resume();
+            }
+            
+            elementoAudio.play().catch(err => {
+                console.log("Fallo en la API de reproducción fluida nativa: ", err);
             });
             
             sobre.classList.add('abierto');
@@ -195,6 +205,7 @@
     </script>
 </body>
 </html>
+
 
 
 
